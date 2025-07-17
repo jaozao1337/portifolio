@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólio SOLAGNA.CO</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Aplicando a fonte Inter como padrão */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Efeito de gradiente animado para o fundo */
+        .animated-gradient {
+            background: linear-gradient(-45deg, #111827, #1f2937, #374151, #111827);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="animated-gradient text-gray-200">
+
+    <!-- Container Principal -->
+    <div class="container mx-auto px-4 py-8 md:py-16">
+
+        <!-- Cabeçalho -->
+        <header class="text-center mb-12 md:mb-20">
+            <h1 class="text-4xl md:text-6xl font-black uppercase tracking-widest text-white">
+                SOLAGNA<span class="text-indigo-400">.</span>CO
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-400">Um lugar para todos os meus projetos e experimentos.</p>
+        </header>
+
+        <!-- Seção de Projetos -->
+        <main>
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-10 text-white">Meus Projetos</h2>
+            
+            <!-- Grid de Projetos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- Projeto 1: Quebra-Queixo -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out border border-gray-700">
+                    <img src="https://placehold.co/600x400/f472b6/ffffff?text=Quebra-Queixo" alt="Imagem do projeto Quebra-Queixo" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Quebra-Queixo</h3>
+                        <p class="text-gray-400 mb-4">Um projeto divertido e colorido, explorando elementos de UI interativos.</p>
+                        <a href="https://jaozao1337.github.io/quebra-queixo/" target="_blank" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                            Visitar Projeto &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Projeto 2: Calccheese -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out border border-gray-700">
+                    <img src="https://placehold.co/600x400/f59e0b/ffffff?text=Calccheese" alt="Imagem do projeto Calccheese" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Calccheese</h3>
+                        <p class="text-gray-400 mb-4">Uma calculadora com um tema de queijo, focada na lógica e funcionalidade com JavaScript.</p>
+                        <a href="https://jaozao1337.github.io/calccheese/" target="_blank" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                            Visitar Projeto &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Projeto 3: Menu Figo -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out border border-gray-700">
+                    <img src="https://placehold.co/600x400/84cc16/ffffff?text=Menu+Figo" alt="Imagem do projeto Menu Figo" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Menu Figo</h3>
+                        <p class="text-gray-400 mb-4">Layout de um menu digital para um restaurante, praticando design e responsividade com CSS.</p>
+                        <a href="https://jaozao1337.github.io/menu_figo/" target="_blank" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                            Visitar Projeto &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card para Futuro Projeto (Modelo) -->
+                <!-- 
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out border border-gray-700 opacity-50">
+                    <img src="https://placehold.co/600x400/6b7280/ffffff?text=Novo+Projeto" alt="Imagem de um novo projeto" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Novo Projeto</h3>
+                        <p class="text-gray-400 mb-4">A descrição do seu próximo projeto incrível aparecerá aqui.</p>
+                        <a href="#" class="inline-block bg-gray-600 text-white font-bold py-2 px-4 rounded-lg cursor-not-allowed">
+                            Em Breve...
+                        </a>
+                    </div>
+                </div>
+                -->
+
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        <footer class="text-center mt-16 text-gray-500">
+            <p>&copy; 2024 SOLAGNA.CO. Criado com diversão e código.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
