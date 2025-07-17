@@ -17,11 +17,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* Aplicando a fonte Inter como padrão */
+        /* Estilos Gerais */
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Efeito de gradiente animado para o fundo (mais vibrante) */
         .animated-gradient {
             background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
             background-size: 400% 400%;
@@ -32,7 +31,6 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        /* Classe para texto com gradiente */
         .gradient-text {
             background: linear-gradient(to right, #818cf8, #c084fc, #f472b6);
             -webkit-background-clip: text;
@@ -40,7 +38,6 @@
             background-clip: text;
             text-fill-color: transparent;
         }
-        /* Estilização dos cards */
         .project-card {
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -48,6 +45,12 @@
         .project-card:hover {
             transform: translateY(-5px) scale(1.03);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(192, 132, 252, 0.3);
+        }
+        /* Estilos para o Jogo do Dinossauro */
+        #dino-game-canvas {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -70,7 +73,6 @@
             
             <!-- Grid de Projetos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
                 <!-- Projeto 1: Quebra-Queixo -->
                 <div class="project-card bg-gray-900/40 backdrop-blur-sm rounded-xl overflow-hidden">
                     <img src="https://placehold.co/600x400/f472b6/ffffff?text=Quebra-Queixo" alt="Imagem do projeto Quebra-Queixo" class="w-full h-48 object-cover">
@@ -115,9 +117,17 @@
                         </a>
                     </div>
                 </div>
-
             </div>
         </main>
+
+        <!-- Seção do Jogo -->
+        <section class="text-center mt-16 md:mt-24">
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Algo a mais...</h2>
+            <p class="text-gray-400 mb-8">Que tal uma pausa para um jogo?</p>
+            <button id="play-dino-button" class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg shadow-purple-500/30 transform hover:scale-105">
+                Jogar!
+            </button>
+        </section>
 
         <!-- Rodapé -->
         <footer class="text-center mt-16 text-gray-500">
@@ -126,5 +136,236 @@
 
     </div>
 
+    <!-- Modal do Jogo do Dinossauro -->
+    <div id="dino-game-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl relative w-full max-w-2xl text-center border border-gray-700">
+            <button id="close-dino-modal" class="absolute top-3 right-4 text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+            <h3 class="text-2xl font-bold text-white mb-2">Robo Run!</h3>
+            <p id="game-instructions" class="text-gray-400 mb-4">Pressione <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Espaço</kbd> para pular.</p>
+            <canvas id="dino-game-canvas" width="600" height="200"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // --- Lógica do Modal ---
+        const dinoModal = document.getElementById('dino-game-modal');
+        const playButton = document.getElementById('play-dino-button');
+        const closeButton = document.getElementById('close-dino-modal');
+
+        playButton.addEventListener('click', () => {
+            dinoModal.classList.remove('hidden');
+            if (typeof Game !== 'undefined') Game.start();
+        });
+
+        closeButton.addEventListener('click', () => {
+            dinoModal.classList.add('hidden');
+            if (typeof Game !== 'undefined') Game.stop();
+        });
+
+        // --- Código do Jogo (com Pássaros e Cores Corrigidas) ---
+        const canvas = document.getElementById('dino-game-canvas');
+        const ctx = canvas.getContext('2d');
+        const gameInstructions = document.getElementById('game-instructions');
+
+        const Game = {
+            config: {
+                width: 600, height: 200, groundY: 175,
+                skyColor: '#87CEEB', cloudColor: '#ecf0f1', fontColor: '#535353',
+                birdColor: '#4a4e69', playerColor: '#e76f51', obstacleColors: ['#2a9d8f', '#264653', '#e9c46a'],
+                initialSpeed: 2.5, acceleration: 0.001, jumpPower: 11, gravity: 0.45,
+            },
+            state: {
+                player: null, obstacles: [], clouds: [], birds: [], speed: 0, score: 0, highscore: 0,
+                frameCount: 0, nextObstacleFrame: 0, isGameOver: true, animationFrameId: null,
+            },
+            start: function() {
+                if (this.state.animationFrameId) cancelAnimationFrame(this.state.animationFrameId);
+                this.state.isGameOver = false; this.state.frameCount = 0;
+                this.state.speed = this.config.initialSpeed; this.state.score = 0;
+                this.state.obstacles = []; this.state.clouds = []; this.state.birds = [];
+                this.state.player = new Player(30, this.config.groundY, this.config);
+                this.state.highscore = localStorage.getItem('dino_highscore') || 0;
+                this.state.nextObstacleFrame = 120; 
+                gameInstructions.innerHTML = `Pressione <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Espaço</kbd> para pular.`;
+                this.loop();
+            },
+            stop: function() {
+                this.state.isGameOver = true;
+                if (this.state.animationFrameId) cancelAnimationFrame(this.state.animationFrameId);
+            },
+            loop: function() {
+                if (this.state.isGameOver) return;
+                this.update(); this.draw();
+                this.state.animationFrameId = requestAnimationFrame(this.loop.bind(this));
+            },
+            update: function() {
+                this.state.frameCount++; this.state.speed += this.config.acceleration;
+                this.state.score++; this.state.player.update();
+                if (this.state.frameCount >= this.state.nextObstacleFrame) {
+                    this.addObstacle(); this.setNextObstacleFrame();
+                }
+                if (Math.random() < 0.01 && this.state.clouds.length < 5) this.addCloud();
+                if (Math.random() < 0.008 && this.state.birds.length < 4) this.addBird();
+                this.state.clouds.forEach((c, i) => { c.update(); if (c.x + c.size * 2 < 0) this.state.clouds.splice(i, 1); });
+                this.state.birds.forEach((b, i) => { b.update(); if (b.x + 20 < 0) this.state.birds.splice(i, 1); });
+                this.state.obstacles.forEach((o, i) => {
+                    o.update(this.state.speed);
+                    if (o.x + o.width < 0) this.state.obstacles.splice(i, 1);
+                    if (this.checkCollision(this.state.player, o)) this.gameOver();
+                });
+            },
+            draw: function() {
+                ctx.fillStyle = this.config.skyColor; ctx.fillRect(0, 0, this.config.width, this.config.height);
+                this.state.clouds.forEach(c => c.draw(ctx));
+                this.state.birds.forEach(b => b.draw(ctx, this.state.frameCount));
+                ctx.fillStyle = '#d1d1d1'; ctx.fillRect(0, this.config.groundY, this.config.width, 1);
+                this.state.player.draw(ctx, this.state.frameCount);
+                this.state.obstacles.forEach(o => o.draw(ctx));
+                ctx.fillStyle = this.config.fontColor; ctx.font = '16px "Inter", sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(`HI ${String(this.state.highscore).padStart(5, '0')}`, this.config.width - 10, 25);
+                ctx.fillText(String(this.state.score).padStart(5, '0'), this.config.width - 10, 50);
+            },
+            gameOver: function() {
+                this.state.isGameOver = true;
+                if (this.state.score > this.state.highscore) {
+                    this.state.highscore = this.state.score;
+                    localStorage.setItem('dino_highscore', this.state.highscore);
+                }
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; ctx.fillRect(0, 0, this.config.width, this.config.height);
+                ctx.fillStyle = '#f1f1f1'; ctx.font = 'bold 30px "Inter", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', this.config.width / 2, this.config.height / 2 - 20);
+                gameInstructions.textContent = 'Clique ou pressione Espaço para reiniciar.';
+            },
+            checkCollision: function(player, obstacle) {
+                return player.collisionBoxes.some(box => 
+                    obstacle.collisionBoxes.some(cBox => 
+                        box.x < cBox.x + cBox.w && box.x + box.w > cBox.x &&
+                        box.y < cBox.y + cBox.h && box.y + box.h > cBox.y
+                    )
+                );
+            },
+            addObstacle: function() { this.state.obstacles.push(new Obstacle(this.config)); },
+            addCloud: function() { this.state.clouds.push(new Cloud(this.config)); },
+            addBird: function() { this.state.birds.push(new Bird(this.config)); },
+            setNextObstacleFrame: function() {
+                 const minGap = 50, maxGap = 120;
+                 const gap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+                 this.state.nextObstacleFrame = this.state.frameCount + gap;
+            },
+            handleInput: function() {
+                if (this.state.isGameOver) this.start();
+                else this.state.player.jump();
+            }
+        };
+
+        class Player {
+            constructor(x, groundY, config) {
+                this.x = x; this.groundY = groundY; this.config = config;
+                this.y = groundY; this.vy = 0; this.isJumping = false;
+                this.bodyWidth = 25; this.bodyHeight = 30; this.headRadius = 8;
+                this.legHeight = 10; this.collisionBoxes = [];
+            }
+            jump() { if (!this.isJumping) { this.isJumping = true; this.vy = -this.config.jumpPower; }}
+            update() {
+                this.vy += this.config.gravity; this.y += this.vy;
+                if (this.y > this.groundY) { this.y = this.groundY; this.vy = 0; this.isJumping = false; }
+                const bodyTopY = this.y - this.legHeight - this.bodyHeight;
+                const headTopY = bodyTopY - this.headRadius;
+                this.collisionBoxes = [
+                    { x: this.x, y: bodyTopY, w: this.bodyWidth, h: this.bodyHeight },
+                    { x: this.x + (this.bodyWidth/2) - this.headRadius, y: headTopY, w: this.headRadius*2, h: this.headRadius*2 }
+                ];
+            }
+            draw(ctx, frameCount) {
+                ctx.fillStyle = this.config.playerColor; // Cor do robô definida aqui para todas as partes
+                const bodyTopY = this.y - this.legHeight - this.bodyHeight;
+                const headTopY = bodyTopY - this.headRadius;
+                const headX = this.x + this.bodyWidth / 2;
+                if (!this.isJumping) {
+                    const legFrame = Math.floor(frameCount / 5) % 2;
+                    if (legFrame === 0) {
+                        ctx.fillRect(this.x + 3, this.y - this.legHeight, 5, this.legHeight);
+                        ctx.fillRect(this.x + this.bodyWidth - 8, this.y - 5, 5, 5);
+                    } else {
+                        ctx.fillRect(this.x + 3, this.y - 5, 5, 5);
+                        ctx.fillRect(this.x + this.bodyWidth - 8, this.y - this.legHeight, 5, this.legHeight);
+                    }
+                } else {
+                    ctx.fillRect(this.x + 3, this.y - 5, 5, 5);
+                    ctx.fillRect(this.x + this.bodyWidth - 8, this.y - 5, 5, 5);
+                }
+                ctx.fillRect(this.x, bodyTopY, this.bodyWidth, this.bodyHeight);
+                ctx.beginPath(); ctx.arc(headX, headTopY, this.headRadius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(headX + 3, headTopY, 2, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        class Obstacle {
+            constructor(config) {
+                this.config = config; this.x = this.config.width; this.type = Math.floor(Math.random() * 3);
+                this.color = config.obstacleColors[Math.floor(Math.random() * config.obstacleColors.length)];
+                this.collisionBoxes = []; this.width = 0;
+            }
+            update(speed) { this.x -= speed; this.collisionBoxes.forEach(box => box.x -= speed); }
+            draw(ctx) {
+                ctx.fillStyle = this.color; this.collisionBoxes = [];
+                const drawCactus = (x, y, w, h) => { ctx.fillRect(x, y, w, h); this.collisionBoxes.push({x, y, w, h}); };
+                switch (this.type) {
+                    case 0: drawCactus(this.x, this.config.groundY - 35, 15, 35); this.width = 15; break;
+                    case 1: drawCactus(this.x, this.config.groundY - 50, 20, 50); this.width = 20; break;
+                    case 2: drawCactus(this.x, this.config.groundY - 50, 20, 50); drawCactus(this.x - 15, this.config.groundY - 40, 15, 10); this.width = 35; break;
+                }
+            }
+        }
+
+        class Cloud {
+            constructor(config) {
+                this.config = config; this.x = this.config.width + Math.random() * 200;
+                this.y = 20 + Math.random() * 50; this.size = 15 + Math.random() * 20;
+                this.speed = 0.5 + Math.random() * 0.5; this.parts = [];
+                const numParts = 3 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < numParts; i++) {
+                    this.parts.push({
+                        xOffset: (Math.random() - 0.5) * this.size * 1.5,
+                        yOffset: (Math.random() - 0.5) * this.size * 0.5,
+                        radius: this.size * (0.6 + Math.random() * 0.4)
+                    });
+                }
+            }
+            update() { this.x -= this.speed; }
+            draw(ctx) {
+                ctx.fillStyle = this.config.cloudColor;
+                this.parts.forEach(part => {
+                    ctx.beginPath(); ctx.arc(this.x + part.xOffset, this.y + part.yOffset, part.radius, 0, Math.PI * 2); ctx.fill();
+                });
+            }
+        }
+
+        class Bird {
+            constructor(config) {
+                this.config = config; this.x = this.config.width + Math.random() * 300;
+                this.y = 30 + Math.random() * 60; this.speed = 1 + Math.random() * 1.5;
+            }
+            update() { this.x -= this.speed; }
+            draw(ctx, frameCount) {
+                ctx.strokeStyle = this.config.birdColor; ctx.lineWidth = 2;
+                ctx.beginPath();
+                const wingUp = Math.floor(frameCount / 10) % 2 === 0;
+                const wingY = wingUp ? this.y - 5 : this.y + 5;
+                ctx.moveTo(this.x - 10, wingY); ctx.lineTo(this.x, this.y); ctx.lineTo(this.x + 10, wingY);
+                ctx.stroke();
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !dinoModal.classList.contains('hidden')) { e.preventDefault(); Game.handleInput(); }
+        });
+        canvas.addEventListener('click', () => { if (!dinoModal.classList.contains('hidden')) Game.handleInput(); });
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); if (!dinoModal.classList.contains('hidden')) Game.handleInput(); });
+
+    </script>
 </body>
 </html>
